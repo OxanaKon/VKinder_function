@@ -1,0 +1,69 @@
+from random import randrange
+
+import vk_api
+from vk_api.longpoll import VkLongPoll, VkEventType
+
+vk_session = vk_api.VkApi(token = '')
+session_api = vk_session.get_api()
+
+longpoll = VkLongPoll(vk_session)
+
+
+def write_msg(user_id, message):
+    vk_session.method('messages.send', {'user_id': user_id, 'message': message,  'random_id': randrange(10 ** 7),})
+
+
+for event in longpoll.listen():
+    if event.type == VkEventType.MESSAGE_NEW:
+
+        if event.to_me:
+            request = event.text.lower()
+
+            if request == "привет":
+                write_msg(event.user_id, f"Хай, {event.user_id}")
+            elif request == "пока":
+                write_msg(event.user_id, "Пока((")
+            else:
+                write_msg(event.user_id, "Не поняла вашего ответа...")
+
+
+def user_search(age, sex, city, marital_status):
+    session = vk.session(user_token = '')
+    vk_api = vk.api(session)
+    usr = vk_api.users.get(user_id = 'user_id',
+                           fields = 'age, sex, city, marital_status', v = 5.131)
+    first_name = (usr[0]['first_name'])
+    last_name = (usr[0]['last_name'])
+    fn = (usr[0]['first_name'] + '' + usr[0]['last_name'])
+    try:
+        city = (usr[0]['city']['title'])
+    except KeyError:
+        city = 'где вы живете?'
+
+    try:
+        marital_status = (usr[0]['marital_status'])
+    except KeyError:
+        marital_status = 'ваше семейное положение?'
+
+
+def photo_search(user_id):
+    vk_ = vk_api.VkApi(token='')
+    try:
+        response = vk_.method('photo.search',
+                              { 'access_token': '',
+                                'v': 5.131,
+                                'owner_id': user_id,
+                                'type': album,
+                                'count': 10,
+                                })
+    except Error:
+        return 'фото недоступно'
+    users_photos = []
+    for i in range(10):
+        try:
+            users_photos.append(
+                [response['items'][i]['likes']['count'],
+                 'photo' + str(response['items'][i]['owner_id']) + '_' + str(response['items'][i]['id'])])
+        except IndexError:
+            users_photos.append(['нет фото'])
+    return users_photos
