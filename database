@@ -22,15 +22,7 @@ def seen_user(conn):
             vk_id varchar(50) PRIMARY KEY);"""
         )
 
-# Создаем таблицу с фото
-def photos(conn):
-    with conn.cursor() as cursor:
-        cursor.execute(
-            """CREATE TABLE IF NOT EXISTS photos(
-            id serial,
-            link_photo varchar(50),
-            count_likes varchar(10);"""
-        )
+
 
 # Добавляем данные в таблицу "Найденные пользователи"
 def add_users(first_name, last_name, vk_id, vk_link):
@@ -49,24 +41,6 @@ def add_seen_users(vk_id, offset):
             OFFSET '{offset}';
             """
         )
-
-# Выборка из оставшихся пользователей
-def select(offset):
-    with conn.cursor() as cursor:
-        cursor.execute(
-            """SELECT u.first_name,
-                        u.last_name,
-                        u.vk_id,
-                        u.vk_link,
-                        su.vk_id
-                        FROM users AS u
-                        LEFT JOIN seen_users AS su
-                        ON u.vk_id = su.vk_id
-                        WHERE su.vk_id IS NULL
-                        OFFSET '{offset}';
-                        """
-        )
-        return cursor.fetchone()
 
 
 
