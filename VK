@@ -91,23 +91,22 @@ def send_photo(user_id, message):
                           'attachment': link_profile,
                           'random_id': 0})
 
-if __name__ == '__main__':
-    while True:
 
-        def new_messages(user_id, message):
-            if message.upper() == 'привет':
-                return f"Привет-привет, {user_id}! Введите 'поиск' для поиска анкет"
 
-            elif message.upper() == "поиск":
-                return users_search()
+def new_messages(user_id, message):
+    if message.upper() == 'привет':
+        return f"Привет-привет, {user_id}! Введите 'поиск' для поиска анкет"
 
-            elif message.upper() == "фото":
-                return send_photo()
+    elif message.upper() == "поиск":
+        return users_search()
 
-            elif message.upper() == "пока":
-                return f"Пока-пока, {user_id}!"
+    elif message.upper() == "фото":
+        return send_photo()
 
-            else:
-                return "Не понимаю о чем вы..."
-    main()
+    elif message.upper() == "пока":
+        return f"Пока-пока, {user_id}!"
+
+    else:
+        return "Не понимаю о чем вы..."
+   
 
