@@ -4,7 +4,7 @@ from random import randrange
 import vk_api
 from vk_api.longpoll import VkLongPoll, VkEventType
 
-vk_session = vk_api.VkApi(token = 'vk1.a.w755Wbh62hxj6q9nsdpyq6Ri8JPzGHubtqaKxtp2iJxlF3i18gJ6vl_pCgdE-2eHQ0dvZKmMO-8Q8e48o2m331ghqh5cAnna7XHSByG_TGaOPUOPFq62bTO1GyGacBWkZqpHPZAYvquFtyVxgKkcMK4arNDyyXndN5MBUItAcCGGcqiiCjAALbepXn07wM2OCK04zp7dNmFGLx0xek6yrQ')
+vk_session = vk_api.VkApi(token = '')
 session_api = vk_session.get_api()
 
 longpoll = VkLongPoll(vk_session)
@@ -21,7 +21,7 @@ def paste_foto(user_id, attachment):
 def users_search(sex, age, city, status):
     all_persons = {}
     link_profile = 'https://vk.com/id'
-    vk = vk_api.VkApi(token='vk1.a.8cDlVxthT0OwAw1gCN8NWlPyS9Kt2dN58l-gKBjWJmRib2L3A2ILecgjLAuHXku63r4MWOiLh97D1WcaRpaZNRPqednxsO9n3ioQ4i7gy016c552t0UV3Y1EaoBQwx0JTevh5ebLKdnEU5Z5PXZsTM2z9TmC8ucZkf3O20eg9VLp6sgfz_Gr1sVrkNIh3uXVQc2Ap9Y0FFFKRBn3pZ8Big')
+    vk = vk_api.VkApi(token='')
     response = vk.method('users.get', {   'sort':1,
                                           'sex': sex,
                                           'status': status,
@@ -45,10 +45,10 @@ def users_search(sex, age, city, status):
 
 # Ищем фото
 def photo_search(user_id):
-    vk_ = vk_api.VkApi(token='vk1.a.8cDlVxthT0OwAw1gCN8NWlPyS9Kt2dN58l-gKBjWJmRib2L3A2ILecgjLAuHXku63r4MWOiLh97D1WcaRpaZNRPqednxsO9n3ioQ4i7gy016c552t0UV3Y1EaoBQwx0JTevh5ebLKdnEU5Z5PXZsTM2z9TmC8ucZkf3O20eg9VLp6sgfz_Gr1sVrkNIh3uXVQc2Ap9Y0FFFKRBn3pZ8Big')
+    vk_ = vk_api.VkApi(token='')
     try:
         response = vk_.method('photo.search',
-                              { 'access_token': 'vk1.a.8cDlVxthT0OwAw1gCN8NWlPyS9Kt2dN58l-gKBjWJmRib2L3A2ILecgjLAuHXku63r4MWOiLh97D1WcaRpaZNRPqednxsO9n3ioQ4i7gy016c552t0UV3Y1EaoBQwx0JTevh5ebLKdnEU5Z5PXZsTM2z9TmC8ucZkf3O20eg9VLp6sgfz_Gr1sVrkNIh3uXVQc2Ap9Y0FFFKRBn3pZ8Big',
+                              { 'access_token': '',
                                 'v': 5.131,
                                 'owner_id': user_id,
                                 'type': album,
