@@ -4,7 +4,7 @@ from random import randrange
 import vk_api
 from vk_api.longpoll import VkLongPoll, VkEventType
 
-vk_session = vk_api.VkApi(token = 'group_token')
+vk_session = vk_api.VkApi(token = 'vk1.a.w755Wbh62hxj6q9nsdpyq6Ri8JPzGHubtqaKxtp2iJxlF3i18gJ6vl_pCgdE-2eHQ0dvZKmMO-8Q8e48o2m331ghqh5cAnna7XHSByG_TGaOPUOPFq62bTO1GyGacBWkZqpHPZAYvquFtyVxgKkcMK4arNDyyXndN5MBUItAcCGGcqiiCjAALbepXn07wM2OCK04zp7dNmFGLx0xek6yrQ')
 session_api = vk_session.get_api()
 
 longpoll = VkLongPoll(vk_session)
@@ -13,30 +13,16 @@ longpoll = VkLongPoll(vk_session)
 def write_msg(user_id, message):
     vk_session.method('messages.send', {'user_id': user_id, 'message': message,  'random_id': randrange(10 ** 7),})
 
-
-
-for event in longpoll.listen():
-    if event.type == VkEventType.MESSAGE_NEW:
-
-        if event.to_me:
-            request = event.text.lower()
-
-            if request == "привет":
-                write_msg(event.user_id, f"Хай, {event.user_id}")
-
-
-            elif request == "пока":
-                write_msg(event.user_id, "Пока((")
-            else:
-                write_msg(event.user_id, "Не поняла вашего ответа...")
+def paste_foto(user_id, attachment):
+    vk_session.method('messages.send', {'user_id':user_id, 'attachment':attachment, 'random_id':randrange(10 ** 7),})
 
 
 # Ищем пользователей по критериям
 def users_search(sex, age, city, status):
     all_persons = {}
     link_profile = 'https://vk.com/id'
-    vk = vk_api.VkApi(token='user_token')
-    response = vk.method('users.get', {'sort': 1,
+    vk = vk_api.VkApi(token='vk1.a.8cDlVxthT0OwAw1gCN8NWlPyS9Kt2dN58l-gKBjWJmRib2L3A2ILecgjLAuHXku63r4MWOiLh97D1WcaRpaZNRPqednxsO9n3ioQ4i7gy016c552t0UV3Y1EaoBQwx0JTevh5ebLKdnEU5Z5PXZsTM2z9TmC8ucZkf3O20eg9VLp6sgfz_Gr1sVrkNIh3uXVQc2Ap9Y0FFFKRBn3pZ8Big')
+    response = vk.method('users.get', {   'sort':1,
                                           'sex': sex,
                                           'status': status,
                                           'age': age,
@@ -59,10 +45,10 @@ def users_search(sex, age, city, status):
 
 # Ищем фото
 def photo_search(user_id):
-    vk_ = vk_api.VkApi(token='user_token')
+    vk_ = vk_api.VkApi(token='vk1.a.8cDlVxthT0OwAw1gCN8NWlPyS9Kt2dN58l-gKBjWJmRib2L3A2ILecgjLAuHXku63r4MWOiLh97D1WcaRpaZNRPqednxsO9n3ioQ4i7gy016c552t0UV3Y1EaoBQwx0JTevh5ebLKdnEU5Z5PXZsTM2z9TmC8ucZkf3O20eg9VLp6sgfz_Gr1sVrkNIh3uXVQc2Ap9Y0FFFKRBn3pZ8Big')
     try:
         response = vk_.method('photo.search',
-                              { 'access_token': 'user_token',
+                              { 'access_token': 'vk1.a.8cDlVxthT0OwAw1gCN8NWlPyS9Kt2dN58l-gKBjWJmRib2L3A2ILecgjLAuHXku63r4MWOiLh97D1WcaRpaZNRPqednxsO9n3ioQ4i7gy016c552t0UV3Y1EaoBQwx0JTevh5ebLKdnEU5Z5PXZsTM2z9TmC8ucZkf3O20eg9VLp6sgfz_Gr1sVrkNIh3uXVQc2Ap9Y0FFFKRBn3pZ8Big',
                                 'v': 5.131,
                                 'owner_id': user_id,
                                 'type': album,
@@ -80,33 +66,27 @@ def photo_search(user_id):
             users_photos.append(['нет фото'])
     return users_photos
 
+def run():
+    for this_event in longpoll.listen():
+        if this_event.type == VkEventType.MESSAGE_NEW:
+            if this_event.to_me:
+                message_text = this_event.text
+                return message_text, this_event.user_id
 
-# Функция отправки фото
-def send_photo(user_id, message):
-    link_profile = 'https://vk.com/id'
-    response = vk_.method('messages.send',
-                          {'user_id': user_id,
-                          'access_token': 'user_token',
-                          'message': message,
-                          'attachment': link_profile,
-                          'random_id': 0})
+def menu_bot(id_num):
+    write_msg(id_num,
+              f"Привет! Хочешь найти себе пару?\n"
+              f"Для поиска введите - Да\n")
 
 
 
-def new_messages(user_id, message):
-    if message.upper() == 'привет':
-        return f"Привет-привет, {user_id}! Введите 'поиск' для поиска анкет"
+if __name__ == '__main__':
+    while True:
+        msg_text, user_id = run()
+        if msg_text == "привет":
+            menu_bot(user_id)
+            msg_text, user_id = run()
+            if msg_text.lower() == 'да':
+                users_search('sex', 'age', 'city', 'status')
 
-    elif message.upper() == "поиск":
-        return users_search()
-
-    elif message.upper() == "фото":
-        return send_photo()
-
-    elif message.upper() == "пока":
-        return f"Пока-пока, {user_id}!"
-
-    else:
-        return "Не понимаю о чем вы..."
-   
 
