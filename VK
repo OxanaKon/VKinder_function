@@ -1,61 +1,77 @@
 from random import randrange
 
 
+
 import vk_api
 from vk_api.longpoll import VkLongPoll, VkEventType
 
-vk_session = vk_api.VkApi(token = '')
+from token_2 import token_group , access_token, V
+
+
+
+
+
+vk_session = vk_api.VkApi(token = token_group)
 session_api = vk_session.get_api()
 
 longpoll = VkLongPoll(vk_session)
 
 
-def write_msg(user_id, message):
-    vk_session.method('messages.send', {'user_id': user_id, 'message': message,  'random_id': randrange(10 ** 7),})
 
-def paste_foto(user_id, attachment):
+
+def write_msg(user_id, message):
+    vk_session.method('messages.send', {'user_id': user_id, 'message': message, 'random_id': randrange(10 ** 7), })
+
+
+def paste_foto(user_id, attachment=None):
     vk_session.method('messages.send', {'user_id':user_id, 'attachment':attachment, 'random_id':randrange(10 ** 7),})
 
 
-# Ищем пользователей по критериям
-def users_search(sex, age, city, status):
-    all_persons = {}
+
+def search_users(birth_year, sex, hometown, status):
+    all_persons = []
     link_profile = 'https://vk.com/id'
-    vk = vk_api.VkApi(token='')
-    response = vk.method('users.get', {   'sort':1,
-                                          'sex': sex,
-                                          'status': status,
-                                          'age': age,
-                                          'has_photo': 1,
-                                          'count': 50,
-                                          'fields': 'sex, age, city, status',
-                                          'city': city})
-    for item in response['items']:
-        if item["is_closed"] == False:
-            for key in item.keys():
-                if key == 'city':
-                    all_persons[item['id']]['city_id'] = item[key]['id']
-                    all_persons[item['id']]['city_title'] = item[key]['title']
-                elif item['id'] not in all_persons.keys():
-                    all_persons[item['id']] = {f'{key}' : item[key]}
-                else:
-                    all_persons[item['id']][key] = item[key]
-            all_persons[item['id']]['link_pro'] = link_profile + str(item['id'])
+    vk = vk_api.VkApi(token=access_token)
+    response = vk.method('users.get',
+                          {'birth_year': birth_year,
+                          'sex': sex,
+                          'hometown': hometown,
+                          'status': status,
+                          'count': 10,
+                          'sort': 1,
+                          'has_photo': 1,
+                          'count': 25,
+                          'online': 1,
+                           })
+    for element in response['items']:
+        person = [
+            element['first_name'],
+            element['last_name'],
+            link_profile + str(element['id']),
+            element['id']
+        ]
+        all_persons.append(person)
     return all_persons
 
+
+
+
+
 # Ищем фото
-def photo_search(user_id):
-    vk_ = vk_api.VkApi(token='')
+def get_photos(user_id):
+    vk = vk_api.VkApi(token=access_token)
     try:
-        response = vk_.method('photo.search',
-                              { 'access_token': '',
-                                'v': 5.131,
-                                'owner_id': user_id,
-                                'type': album,
-                                'count': 10,
-                                })
-    except Error:
-        return 'фото недоступно'
+        response = vk.method('photos.get',
+                              {
+                                  'access_token': access_token,
+                                  'v': V,
+                                  'owner_id': int(user_id),
+                                  'album_id': 'profile',
+                                  'count': 10,
+                                  'extended': 1,
+                                 })
+    except TypeError:
+        return 'нет доступа к фото'
     users_photos = []
     for i in range(10):
         try:
@@ -63,30 +79,58 @@ def photo_search(user_id):
                 [response['items'][i]['likes']['count'],
                  'photo' + str(response['items'][i]['owner_id']) + '_' + str(response['items'][i]['id'])])
         except IndexError:
-            users_photos.append(['нет фото'])
+            users_photos.append(['нет фото.'])
     return users_photos
-
-def run():
-    for this_event in longpoll.listen():
-        if this_event.type == VkEventType.MESSAGE_NEW:
-            if this_event.to_me:
-                message_text = this_event.text
-                return message_text, this_event.user_id
-
-def menu_bot(id_num):
-    write_msg(id_num,
-              f"Привет! Хочешь найти себе пару?\n"
-              f"Для поиска введите - Да\n")
+    # return True
 
 
+# Сортируем фото по лайкам, удаляем лишние элементы
+def sort_likes(photos):
+    result = []
+    for element in photos:
+        if element != ['нет фото.'] and photos != 'нет доступа к фото':
+            result.append(element)
+    return sorted(result)
+    
+    
+def find_user(birth_year, sex, hometown, status):
+    vk = vk_api.VkApi(token=access_token)
+
+    params = {'birth_year': birth_year,
+              'sex': sex,
+              'hometown': hometown,
+              'status': status,
+              'count': 10,
+              }
+
+    result = vk.method('users.search', params)
+    return result
+
+
+# def run ():
 
 if __name__ == '__main__':
-    while True:
-        msg_text, user_id = run()
-        if msg_text == "привет":
-            menu_bot(user_id)
-            msg_text, user_id = run()
-            if msg_text.lower() == 'да':
-                users_search('sex', 'age', 'city', 'status')
+    for event in longpoll.listen():
+        if event.type == VkEventType.MESSAGE_NEW:
+            if event.to_me:
+                request = event.text
 
+
+                if request == 'привет':
+                    write_msg(event.user_id, f'Привет. Это бот для знакомств - VKinder!!!')
+
+
+                elif request == 'да':
+
+                    write_msg(event.user_id, f'Начинаю поиск...')
+
+
+                    birth_year = 2005
+                    sex = 1
+                    hometown = "Москва"
+                    status = 6
+
+                    result = find_user(birth_year, sex, hometown, status)
+
+                    write_msg(event.user_id,f" я нашел для вас \n {result}")
 
