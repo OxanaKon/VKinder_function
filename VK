@@ -27,7 +27,7 @@ def search_users(birth_year, sex, hometown, status):
     response = vk.method('users.get',
                           {'birth_year': birth_year,
                           'sex': sex,
-                          'hometown': hometown,
+                          'hometown': city,
                           'status': status,
                           'count': 10,
                           'sort': 1,
@@ -75,7 +75,7 @@ def find_user(birth_year, sex, hometown, status, is_closed):
 
     params = {'birth_year': birth_year,
               'sex': sex,
-              'hometown': hometown,
+              'hometown': city,
               'status': status,
               'count': 10,
               'is_closed': 0
@@ -93,7 +93,7 @@ if __name__ == '__main__':
 
 
                 if request == 'привет':
-                    write_msg(event.user_id, f'Привет. Это бот для знакомств - VKinder!!!')
+                    write_msg(event.user_id, 'Привет! Хочешь найти себе пару?)
 
 
 
