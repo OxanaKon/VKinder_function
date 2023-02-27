@@ -1,53 +1,31 @@
 import psycopg2
 
-# Создаем таблицу "Найденные пользователи"
-def users(conn):
-    with conn.cursor() as cursor:
-        cursor.execute(
-            """CREATE TABLE IF NOT EXISTS users(
-                id serial,
-                first_name varchar(50) NOT NULL,
-                last_name varchar(25) NOT NULL,
-                vk_id varchar(20) NOT NULL PRIMARY KEY,
-                vk_link varchar(50));"""
-        )
+
+with psycopg2.connect(database='database', user='postgres', password='lkjh9874') as conn:
+    with conn.cursor() as cur:
+        create_db(conn)
 
 
-# Создаем таблицу "Просмотренные пользователи"
-def seen_user(conn):
-    with conn.cursor() as cursor:
+def create_table_seen_users():
+    # создаем таблицу "Просмотренные пользователи"
+    with connection.cursor() as cursor:
         cursor.execute(
             """CREATE TABLE IF NOT EXISTS seen_users(
             id serial,
             vk_id varchar(50) PRIMARY KEY);"""
         )
+    print("[INFO] Table SEEN_USERS was created.")
 
 
-
-# Добавляем данные в таблицу "Найденные пользователи"
-def add_users(first_name, last_name, vk_id, vk_link):
-    with conn.cursor() as cursor:
-        cursor.execute("""
-            INSERT INTO users (first_name, last_name, vk_id, vk_link) VALUES( % s, % s, % s, % s);
-            """, (first_name, last_name, vk_id, vk_link))
-
-
-# Добавляем данные в таблицу "Просмотренные пользователи"
-def add_seen_users(vk_id, offset):
-   with conn.cursor() as cursor:
-        cursor.execute("""
-            INSERT INTO seen_users (vk_id)
+def insert_data_seen_users(vk_id, offset):
+   # втавляем данные в таблицу
+    with connection.cursor() as cursor:
+        cursor.execute(
+            f"""INSERT INTO seen_users (vk_id)
             VALUES ('{vk_id}')
-            OFFSET '{offset}';
-            """
+            OFFSET '{offset}';"""
         )
 
 
-
-if __name__ == '__main__':
-    with psycopg2.connect(database='VKbot_db', user='postgres', password='lkjh9874') as conn:
-        def creating_database():
-            add_users()
-            add_seen_users()
 
 conn.close()
