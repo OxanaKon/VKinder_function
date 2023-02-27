@@ -5,11 +5,14 @@ from vk_api.longpoll import VkLongPoll, VkEventType
 
 from token_2 import token_group , access_token, V
 
+# from database import create_table_seen_users, insert_data_seen_users
+
 
 vk_session = vk_api.VkApi(token = token_group)
 session_api = vk_session.get_api()
 
 longpoll = VkLongPoll(vk_session)
+
 
 
 def write_msg(user_id, message):
@@ -27,7 +30,7 @@ def search_users(birth_year, sex, hometown, status):
     response = vk.method('users.get',
                           {'birth_year': birth_year,
                           'sex': sex,
-                          'hometown': city,
+                          'hometown': hometown,
                           'status': status,
                           'count': 10,
                           'sort': 1,
@@ -47,38 +50,32 @@ def search_users(birth_year, sex, hometown, status):
 # Ищем фото
 def get_photos(owner_id):
     vk = vk_api.VkApi(token=access_token)
-    try:
 
-        params = {    'access_token': access_token,
-                      'v': V,
-                      'owner_id': int(owner_id),
-                      'photo_ids': photo_ids,
-                      'album_id': 'profile',
-                      'count': 10,
-                      'extended': 1}
+    params = {    'access_token': access_token,
+                  'v': V,
+                  'owner_id': owner_id,
+                  'album_id': 'profile',
+                  'count': 10,
+                  'extended': 1}
 
-        result = vk.method('photos.get', params)
+    result = vk.method('photos.get', params)
 
-    except TypeError:
-        return 'нет доступа к фото'
-
-    else:
-        photos = [(item['likes']['count'], f"photo{item['owner_id']}_{item['media_id']}")
-                  for item in result ['items']]
-        photos = sorted(photos)
-        photos = [item[1] for item in photos][:3]
-        return photos
+    photos = [(item['likes']['count'], f"photo{item['owner_id']}_{item['id']}")
+              for item in result ['items']]
+    photos = sorted(photos)
+    photos = [item[1] for item in photos][:3]
+    return photos
 
 
-def find_user(birth_year, sex, hometown, status, is_closed):
+def find_user(birth_year, sex, hometown, status):
     vk = vk_api.VkApi(token=access_token)
 
     params = {'birth_year': birth_year,
               'sex': sex,
-              'hometown': city,
+              'hometown': hometown,
               'status': status,
               'count': 10,
-              'is_closed': 0
+
               }
 
     result = vk.method('users.search', params)
@@ -93,27 +90,28 @@ if __name__ == '__main__':
 
 
                 if request == 'привет':
-                    write_msg(event.user_id, 'Привет! Хочешь найти себе пару?)
-
-
+                    write_msg(event.user_id, 'Привет! Хочешь найти себе пару?')
 
                 elif request == 'да':
 
                     write_msg(event.user_id, 'Начинаю поиск...')
 
-                    result = find_user(1990, 1, 'Москва', 6, 0)
+                    result = find_user(1990, 1, 'Москва', 6)
+
 
                     for user in result['items']:
-                        photos = get_photos(user)
+                       if user['is_closed'] == True:
+                            continue
 
 
-                        write_msg(event.user_id,
-                                  f"{user['first_name']} {user['last_name']} \n https://vk.com/id{user['id']}")
+
+                       photos = get_photos(user['id'])
 
 
-                        write_msg(event.user_id, f"фото: {photos}")
+                       write_msg(event.user_id,
+                                      f"{user['first_name']} {user['last_name']} \n https://vk.com/id{user['id']}")
+                       paste_foto(event.user_id, photos)
 
-                    
 
                 elif request == 'пока':
                     write_msg(event.user_id, 'Пока((')
@@ -121,3 +119,4 @@ if __name__ == '__main__':
 
                 else:
                     write_msg(event.user_id, 'Не понял вашего ответа')
+
