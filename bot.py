@@ -5,7 +5,7 @@ from vk_api.longpoll import VkLongPoll, VkEventType
 
 from token_2 import token_group , access_token, V
 
-# from database import create_table_seen_users, insert_data_seen_users
+from database import create_table_seen_users, insert_data_seen_users, check_user
 
 
 vk_session = vk_api.VkApi(token = token_group)
@@ -32,7 +32,7 @@ def search_users(birth_year, sex, hometown, status):
                           'sex': sex,
                           'hometown': hometown,
                           'status': status,
-                          'count': 10,
+                          'count': 100,
                           'sort': 1,
                           'online': 1,
                            })
@@ -74,7 +74,7 @@ def find_user(birth_year, sex, hometown, status):
               'sex': sex,
               'hometown': hometown,
               'status': status,
-              'count': 10,
+              'count': 100,
 
               }
 
@@ -96,20 +96,24 @@ if __name__ == '__main__':
 
                     write_msg(event.user_id, 'Начинаю поиск...')
 
-                    result = find_user(1990, 1, 'Москва', 6)
+                    result = find_user(1990, 2, 'коломна', 6)
+
+                    user = result['items'][randrange(0, len(result['items']))]
+                    
+                    if user['is_closed'] == True:
+                        continue
+
+                    photos = ','.join(get_photos(user['id']))
+                    write_msg(event.user_id,
+                              f"{user['first_name']} {user['last_name']} \n https://vk.com/id{user['id']}")
+                    paste_foto(event.user_id, photos)
 
 
-                    for user in result['items']:
-                       if user['is_closed'] == True:
-                            continue
-
-
-
-                       photos = get_photos(user['id'])
-
-
+                elif request == 'дальше':
+                       user = result ['items'][randrange(0, len(result['items']))]
+                       photos = ','.join(get_photos(user['id']))
                        write_msg(event.user_id,
-                                      f"{user['first_name']} {user['last_name']} \n https://vk.com/id{user['id']}")
+                                 f"{user['first_name']} {user['last_name']} \n https://vk.com/id{user['id']}")
                        paste_foto(event.user_id, photos)
 
 
@@ -119,4 +123,3 @@ if __name__ == '__main__':
 
                 else:
                     write_msg(event.user_id, 'Не понял вашего ответа')
-
