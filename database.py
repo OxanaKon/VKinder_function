@@ -1,12 +1,19 @@
 import psycopg2
+from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
 
-with psycopg2.connect(database='database', user='postgres', password='lkjh9874') as conn:
-    with conn.cursor() as cur:
-        create_db(conn)
+def create_db():
+    con = psycopg2.connect("user=postgres password='lkjh9874'");
+    con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT);
+    cursor = con.cursor();
+    name_Database   = "database_db";
+    sqlCreateDatabase = "create database_db "+name_Database+";"
+    cursor.execute(sqlCreateDatabase);
+    con.close()
 
 
-def create_table_seen_users():
+
+def create_table_seen_users(connection):
     # создаем таблицу "Просмотренные пользователи"
     with connection.cursor() as cursor:
         cursor.execute(
@@ -14,11 +21,12 @@ def create_table_seen_users():
             id serial,
             vk_id varchar(50) PRIMARY KEY);"""
         )
+        connection.commit()
     print("[INFO] Table SEEN_USERS was created.")
 
 
-def insert_data_seen_users(vk_id, offset):
-   # втавляем данные в таблицу
+def insert_data_seen_users(connection, vk_id, offset):
+   # вставляем данные в таблицу
     with connection.cursor() as cursor:
         cursor.execute(
             f"""INSERT INTO seen_users (vk_id)
@@ -26,6 +34,19 @@ def insert_data_seen_users(vk_id, offset):
             OFFSET '{offset}';"""
         )
 
+def check_user(connection, vk_id, offset):
+    with connection.cursor() as cursor:
+        cursor.execute(
+                """SELECT EXISTS(
+                SELECT * FROM seen_users WHERE id = '{vk_id}');"""
+            )
+        connection.commit()
 
 
-conn.close()
+
+if __name__ == '__main__':
+    create_db()
+    connections = psycopg2.connect(database='database_db', user='postgres', password='lkjh9874')
+    create_table_seen_users(connections)
+    check_user(connection)
+    connections.close()
