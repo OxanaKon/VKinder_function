@@ -85,10 +85,7 @@ def find_user(birth_year, sex, city, status):
 
 if __name__ == '__main__':
 
-
-
     for event in longpoll.listen():
-
 
         if event.type == VkEventType.MESSAGE_NEW:
             if event.to_me:
@@ -104,7 +101,6 @@ if __name__ == '__main__':
 
 
                     birth_year = range(1950, 2005)
-
 
                     sex = 0
                     if sex == 1:
