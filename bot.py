@@ -5,7 +5,7 @@ from vk_api.longpoll import VkLongPoll, VkEventType
 
 from token_2 import token_group , access_token, V
 
-from database import create_table_seen_users, insert_data_seen_users, check_user
+from database import create_db, create_table_seen_users, insert_data_seen_users, check_user
 
 
 vk_session = vk_api.VkApi(token = token_group)
@@ -23,14 +23,14 @@ def paste_foto(user_id, attachment):
     vk_session.method('messages.send', {'user_id':user_id, 'attachment':attachment, 'random_id':randrange(10 ** 7),})
 
 
-def search_users(birth_year, sex, hometown, status):
+def search_users(birth_year, sex, city, status):
     all_persons = []
     link_profile = 'https://vk.com/id'
     vk = vk_api.VkApi(token=access_token)
     response = vk.method('users.get',
                           {'birth_year': birth_year,
                           'sex': sex,
-                          'hometown': hometown,
+                          'hometown': city,
                           'status': status,
                           'count': 100,
                           'sort': 1,
@@ -58,6 +58,7 @@ def get_photos(owner_id):
                   'count': 10,
                   'extended': 1}
 
+
     result = vk.method('photos.get', params)
 
     photos = [(item['likes']['count'], f"photo{item['owner_id']}_{item['id']}")
@@ -67,23 +68,28 @@ def get_photos(owner_id):
     return photos
 
 
-def find_user(birth_year, sex, hometown, status):
+def find_user(birth_year, sex, city, status):
     vk = vk_api.VkApi(token=access_token)
 
     params = {'birth_year': birth_year,
               'sex': sex,
-              'hometown': hometown,
+              'hometown': city,
               'status': status,
               'count': 100,
 
               }
-
     result = vk.method('users.search', params)
+
     return result
 
 
 if __name__ == '__main__':
+
+
+
     for event in longpoll.listen():
+
+
         if event.type == VkEventType.MESSAGE_NEW:
             if event.to_me:
                 request = event.text
@@ -96,12 +102,29 @@ if __name__ == '__main__':
 
                     write_msg(event.user_id, 'Начинаю поиск...')
 
-                    result = find_user(1990, 2, 'коломна', 6)
+
+                    birth_year = range(1950, 2005)
+
+
+                    sex = 0
+                    if sex == 1:
+                        sex = 2
+                    elif sex == 2:
+                        sex = 1
+                    status = 6
+                    city = request[14:len(request)].lower()
+
+                    result = find_user(birth_year, sex, city, status)
 
                     user = result['items'][randrange(0, len(result['items']))]
-                    
+
+                    if not check_user(user['id']):
+                        insert_data_seen_users(user['id'])
+
+
                     if user['is_closed'] == True:
                         continue
+
 
                     photos = ','.join(get_photos(user['id']))
                     write_msg(event.user_id,
