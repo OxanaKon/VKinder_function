@@ -6,8 +6,8 @@ def create_db():
     con = psycopg2.connect("user=postgres password='lkjh9874'");
     con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT);
     cursor = con.cursor();
-    name_Database   = "database_db";
-    sqlCreateDatabase = "create database_db "+name_Database+";"
+    name_Database   = 'database_db';
+    sqlCreateDatabase = "CREATE DATABASE database_db;"
     cursor.execute(sqlCreateDatabase);
     con.close()
 
@@ -25,7 +25,7 @@ def create_table_seen_users(connection):
     print("[INFO] Table SEEN_USERS was created.")
 
 
-def insert_data_seen_users(connection, vk_id, offset):
+def insert_data_seen_users(connection, vk_id):
    # вставляем данные в таблицу
     with connection.cursor() as cursor:
         cursor.execute(
@@ -34,14 +34,15 @@ def insert_data_seen_users(connection, vk_id, offset):
             OFFSET '{offset}';"""
         )
 
-def check_user(connection, vk_id, offset):
+def check_user(connection, vk_id):
     with connection.cursor() as cursor:
         cursor.execute(
-                """SELECT EXISTS(
+                f"""SELECT EXISTS(
                 SELECT * FROM seen_users WHERE id = '{vk_id}');"""
             )
         connection.commit()
-
+        cur.fetchone() is None
+        True
 
 
 if __name__ == '__main__':
