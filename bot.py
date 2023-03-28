@@ -74,9 +74,7 @@ def get_profile_info(user_id):
         return None
 
     year = datetime.datetime.now().year
-    age_from = None
-    age_to = None
-
+    
     if 'bdate' not in info:
        write_msg(user_id, 'Введите Ваш возраст')
 
