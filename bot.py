@@ -16,8 +16,6 @@ def write_msg(user_id, message):
 def paste_foto(user_id, attachment):
     vk_session.method('messages.send', {'user_id':user_id, 'attachment':attachment, 'random_id':randrange(10 ** 7),})
 
-
-
 def search_users(age_from, age_to, sex, city, status):
     all_persons = []
     link_profile = 'https://vk.com/id'
@@ -76,22 +74,27 @@ def get_profile_info(user_id):
         return None
 
     year = datetime.datetime.now().year
-    b_year = int(info['bdate'].split('.')[2])
+    age_from = None
+    age_to = None
 
     if 'bdate' not in info:
-        write_msg(event.user_id, 'введите возраст')
+       write_msg(user_id, 'Введите Ваш возраст')
 
+    else:
+        b_year = int(info['bdate'].split('.')[2])
+        age_from = year - b_year - 5
+        age_to = year - b_year + 5
 
     if 'city' in info:
         city = info['city']['title']
     else:
         write_msg(event.user_id, 'введите город')
-
+        return None
 
     return {'id': info['id'],
             'city': city,
-            'age_from': year - b_year - 5,
-            'age_to': year - b_year + 5,
+            'age_from': age_from,
+            'age_to': age_to,
             'sex': info['sex']
             }
 
@@ -102,9 +105,6 @@ if __name__ == '__main__':
     for event in longpoll.listen():
         if event.type == VkEventType.MESSAGE_NEW:
             vk_id = event.user_id
-            b_year = event.user_id
-            city = event.user_id
-
 
             if event.to_me:
                 request = event.text
@@ -112,42 +112,35 @@ if __name__ == '__main__':
                 if request == 'привет':
                     write_msg(event.user_id, 'Привет! Хочешь найти себе пару?')
 
-
                 elif request == 'да':
 
                     write_msg(event.user_id, 'Начинаю поиск...')
 
                     info = get_profile_info(event.user_id)
-
-
+                  
                     result = search_users(info['age_from'],
-                                          info['age_to'],
-                                          1 if info['sex'] == 2 else 2,
-                                          info['city'],
-                                          6)
-
+                                      info['age_to'],
+                                      1 if info['sex'] == 2 else 2,
+                                      info['city'],
+                                      6)
 
                     if result:
                         user = result.pop()
                     else:
                         write_msg(event.user_id, 'У нас проблемы, пользователи не найдены, попробуйте позже')
 
-
                         try:
                             if not check_user(vk_id, connections):
                                 # добавляем пользователя в базу данных
                                 insert_data_seen_users(vk_id, connections)
-                        except psycopg2.errors.UniqueViolation:  
-                            continue  
+                        except psycopg2.errors.UniqueViolation:
+                            continue
 
-                  
                     photos = ','.join(get_photos(user['id']))
-
 
                     write_msg(event.user_id,
                               f"{user['first_name']} {user['last_name']} \n https://vk.com/id{user['id']}")
                     paste_foto(event.user_id, photos)
-
 
                 elif request == 'дальше':
                     if result:
@@ -161,12 +154,11 @@ if __name__ == '__main__':
                               f"{user['first_name']} {user['last_name']} \n https://vk.com/id{user['id']}")
                     paste_foto(event.user_id, photos)
 
-
                 elif request == 'пока':
                     write_msg(event.user_id, 'Пока((')
 
-
                 else:
                     write_msg(event.user_id, 'Не понял вашего ответа')
+
 
 
