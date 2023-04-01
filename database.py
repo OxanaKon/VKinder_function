@@ -10,17 +10,18 @@ def create_db():
     sqlCreateDatabase = "CREATE DATABASE database_db;"
     cursor.execute(sqlCreateDatabase);
     con.close()
-    
+
+
 def create_table_seen_users(connection):
-# создаем таблицу "Просмотренные пользователи"
-with connection.cursor() as cursor:
-    cursor.execute(
-        """CREATE TABLE IF NOT EXISTS seen_users(
-        id serial,
-        vk_id varchar(50) PRIMARY KEY);"""
-    )
-    connection.commit()
-print("[INFO] Table SEEN_USERS was created.")
+    # создаем таблицу "Просмотренные пользователи"
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """CREATE TABLE IF NOT EXISTS seen_users(
+            id serial,
+            vk_id varchar(50) PRIMARY KEY);"""
+        )
+        connection.commit()
+    print("[INFO] Table SEEN_USERS was created.")
 
 def insert_data_seen_users(vk_id, connection):
     # вставляем данные в таблицу
@@ -31,7 +32,7 @@ def insert_data_seen_users(vk_id, connection):
             """
         )
 
- def check_user( vk_id, connection):
+def check_user( vk_id, connection):
     with connection.cursor() as cursor:
         cursor.execute(
                 f"""SELECT EXISTS(
@@ -41,10 +42,12 @@ def insert_data_seen_users(vk_id, connection):
         cursor.fetchone() is None
         True
 
-
 if __name__ == '__main__':
     create_db()
     connections = psycopg2.connect(database='database_db', user='postgres', password='lkjh9874')
     create_table_seen_users(connections)
-    check_user(connection)
+    check_user(vk_id, connection)
     connections.close()
+
+
+
