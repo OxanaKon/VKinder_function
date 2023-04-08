@@ -27,7 +27,6 @@ def paste_foto(user_id, attachment):
 
 def search_users(age_from, age_to, sex, city, status):
     all_persons = []
-    link_profile = 'https://vk.com/id'
     vk = vk_api.VkApi(token=access_token)
     response = vk.method('users.search',
                          {'age_from': age_from,
@@ -161,7 +160,11 @@ def start_searching(event):
             else:
                 info[field] = value
 
-    result = search_users(info['age_from'], info['age_to'], info['sex'], info['city'], 6)
+    result = search_users(info['age_from'], 
+                          info['age_to'], 
+                          info['sex'], 
+                          info['city'], 
+                          6)
 
     if not result:
         write_msg(event.user_id, 'У нас проблемы, пользователи не найдены, попробуйте позже')
@@ -216,5 +219,4 @@ if __name__ == '__main__':
 
                 else:
                     write_msg(event.user_id, 'Не понял вашего ответа')
-
 
