@@ -52,8 +52,6 @@ def search_users(age_from, age_to, sex, city, status):
     return all_persons
 
 
-# Ищем фото
-
 def get_photos(owner_id):
     vk = vk_api.VkApi(token=access_token)
 
