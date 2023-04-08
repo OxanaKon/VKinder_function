@@ -176,10 +176,7 @@ def start_searching(event):
 
 def next_profile(event):
     global result
-    if not result:
-        write_msg(event.user_id, "Сначала нужно начать поиск, напишите 'да'")
-        return
-
+    
     if len(result) == 0:
         write_msg(event.user_id, "Больше нет пользователей для показа")
         return
